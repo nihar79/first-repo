@@ -98,7 +98,7 @@ print('Destroyed the list')
 front_end=['HTML','CSS','JS','React','Redux']
 back_end=['Node','Express','MongoDB']
 
-front_end.append(back_end)
+front_end.extend(back_end)
 print('The combined list is in front_end',front_end)
 
 full_stack=copy.deepcopy(front_end)
