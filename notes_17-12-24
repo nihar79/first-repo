@@ -1,0 +1,2 @@
+id prints the value of memory address of a variable in python
+strong memory optimization: if a=10 and b=10 then id(a)=id(b) which no additional memory is allocated
