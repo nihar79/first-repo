@@ -87,3 +87,21 @@ print('The middle element(s) have been removed. Here is the updated list ',it_co
 it_companies.pop()
 print('The last company has been removed. Updated list is ',it_companies)
 
+#removed all companies from the list
+it_companies.clear()
+print('Removed all companies from the list',it_companies)
+
+#Destroyed the list. Memory deallocated
+it_companies=None
+print('Destroyed the list')
+
+front_end=['HTML','CSS','JS','React','Redux']
+back_end=['Node','Express','MongoDB']
+
+front_end.append(back_end)
+print('The combined list is in front_end',front_end)
+
+full_stack=copy.deepcopy(front_end)
+full_stack.insert(5,'Python')
+full_stack.insert(6,'SQL')
+print('The fullstack list is', full_stack)
