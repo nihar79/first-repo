@@ -99,4 +99,13 @@ skills=person.get('skills')
 print("Python is present") if 'Python' in skills else print("Python not present")
 
 if len(skills)==2:
-    if 
+    if 'JavaScript' in skills and 'React' in skills:
+        print('He is a frontend developer')
+elif len(skills)==3:
+    if 'React' in skills and 'Node' in skills and 'MongoDB' in skills:
+        print('He is a fullstack developer')
+    elif 'Node' in skills and 'Python' in skills and'MongoDB' in skills:
+        print('He is a backend developer')
+else:
+    print('Unknown title')
+
