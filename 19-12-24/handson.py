@@ -20,11 +20,9 @@ class Car:
 
 
 class Truck(Car):
-    max_cargo_weight=1100
-    current_cargo_weight=0
-
     def __init__(self):
         super().__init__()
+        self.max_cargo_weight=1100
         self.current_cargo_weight=0
 
     def start_engine(self):
