@@ -82,3 +82,16 @@ def same_type(*elements):
     elements=list(elements)
     return all(type(x)==type(elements[0]) for x in elements)
 
+from countries_data import data
+def most_spoken_languages():
+    language_to_freq={}
+    for country in data:
+        spoken_languages=country["languages"]
+        for lang in spoken_languages:
+            if lang in language_to_freq.keys():
+                spoken_languages[lang]=spoken_languages[lang]+1
+            else:
+                spoken_languages[lang]=1
+
+    #you have the frequency map
+    #sort and obtain results    
