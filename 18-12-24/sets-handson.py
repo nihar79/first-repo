@@ -19,8 +19,9 @@ isSubset=A.issubset(B)
 areDisjointSets=A.isdisjoint(B)
 E=C.union(B.union(A))
 F=A.symmetric_difference(B)
-A=None
 B=None
+del A
+del B
 
 #level3
 ages_list= [22, 19, 24, 25, 26, 24, 25, 24]
