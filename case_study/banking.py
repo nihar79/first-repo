@@ -2,7 +2,7 @@ import threading
 import datetime
 import pandas as pd
 
-from banking_errors import InsufficientBalanceException, NotACustomerException, ZeroOrNegativeDepositException
+from banking_errors import *
 
 class BankingServer(threading.Thread):
     #simulate a real-time banking server
@@ -12,6 +12,24 @@ class Banking:
 
     def __init__(self):
         self.customer_data=pd.read_csv('data.csv')
+
+    def create_new_customer(self,name,opening_balance_deposit):
+        if name.strip():
+            if opening_balance_deposit>=0:
+                customer = {
+                    "CustomerID": len(self.customer_data)+101,
+                    "Name": name,
+                    "AccountBalance": opening_balance_deposit
+                }
+                self.customer_data.loc[len(self.customer_data)]=customer
+                data_file=open("data.csv","a")
+                data_file.write(f"\n{customer['CustomerID'],customer['Name'],customer['AccountBalance']}")
+                data_file.close()
+                return PersonalBanking(customer["CustomerID"])
+            else:
+                raise IllegalNameOrBalanceException
+        else:
+            raise IllegalNameOrBalanceException
 
     def get_customer_data(self,customer_id):
         customer = self.customer_data.loc[customer_id-101]
@@ -87,8 +105,13 @@ class PersonalBanking(Banking):
         for transaction in transaction_history:
             print(transaction)
 
+    def create_new_customer(self):
+        message=f"New account opened. Opening Balance {self.balance}"
+        transaction_history.append(message)
+        print(message)
+
 try:
-    person1 = PersonalBanking(109)
+    person1 = PersonalBanking(101)
     person1.withdraw(1000)
     person1.deposit(900)
     person1.get_transaction_history()
@@ -103,4 +126,12 @@ try:
     person2.deposit(10000)
     person2.get_transaction_history()
 except NotACustomerException as e:
+    print(e.args[0])
+
+try:
+    bank = Banking()
+    new_customer = bank.create_new_customer("Jake Pearson",12345)
+    new_customer.create_new_customer()
+
+except IllegalNameOrBalanceException as e:
     print(e.args[0])
