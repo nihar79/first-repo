@@ -11,5 +11,5 @@ class ZeroOrNegativeDepositException(Exception):
         super().__init__("Cannot deposit zero/negative values. Please enter a valid digit.")
 
 class IllegalNameOrBalanceException(Exception):
-    def __init__(self):
-        super().__init__("Please enter a valid name and opening deposit amount")
+    def __init__(self,message):
+        super().__init__(message)

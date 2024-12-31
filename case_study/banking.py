@@ -4,10 +4,7 @@ import pandas as pd
 
 from banking_errors import *
 
-class BankingServer(threading.Thread):
-    #simulate a real-time banking server
-    pass
-
+#Main Banking class
 class Banking:
 
     def __init__(self):
@@ -27,9 +24,9 @@ class Banking:
                 data_file.close()
                 return PersonalBanking(customer["CustomerID"])
             else:
-                raise IllegalNameOrBalanceException
+                raise IllegalNameOrBalanceException("Opening balance must be greater than 0.")
         else:
-            raise IllegalNameOrBalanceException
+            raise IllegalNameOrBalanceException("Name cannot be whitespaces.")
 
     def get_customer_data(self,customer_id):
         customer = self.customer_data.loc[customer_id-101]
@@ -55,12 +52,11 @@ class Banking:
 
     def update_customer_balance(self,customer_id,balance):
         self.customer_data.loc[customer_id-101,2]=balance
-        #print("Balance Updated...")
 
     def transaction_history(self):
         pass
 
-
+#Personal banking class - unique for each user
 class PersonalBanking(Banking):
 
     def __init__(self, customer_id):
@@ -77,9 +73,10 @@ class PersonalBanking(Banking):
 
     def my_data(self):
         self.data = self.data.to_dict()
-        self.id=self.data["CustomerID"]
+        self.id=int(self.data["CustomerID"][1:])
         self.name=self.data["Name"]
         self.balance=self.data["AccountBalance"]
+        self.balance=int(self.balance[0:len(self.balance)-1])
 
     def deposit(self, amount):
         try:
@@ -87,7 +84,7 @@ class PersonalBanking(Banking):
             self.update_transaction_history("deposited",amount)
         except ZeroOrNegativeDepositException as e:
             self.update_transaction_history("A Failed Deposit",0)
-            print(e.args[0])
+            print(self.name,"====>",e.args[0])
 
     def withdraw(self, withdrawal_amount):
         try:
@@ -95,7 +92,7 @@ class PersonalBanking(Banking):
             self.update_transaction_history("withdrawn",withdrawal_amount)
         except InsufficientBalanceException as e:
             self.update_transaction_history("A Failed Withdrawal",0)
-            print(e.args[0])
+            print(self.name,"====>",e.args[0])
 
     def update_transaction_history(self,action,amount):
         update=f"{datetime.datetime.now()}: {amount} was {action}. New balance is {self.balance}"
@@ -103,35 +100,104 @@ class PersonalBanking(Banking):
 
     def get_transaction_history(self):
         for transaction in transaction_history:
-            print(transaction)
+            print(self.name,"====>",transaction)
 
     def create_new_customer(self):
         message=f"New account opened. Opening Balance {self.balance}"
         transaction_history.append(message)
-        print(message)
 
-try:
-    person1 = PersonalBanking(101)
-    person1.withdraw(1000)
-    person1.deposit(900)
-    person1.get_transaction_history()
-except NotACustomerException as e:
-    print(e.args[0])
+##User classes
+#Demonstrating an existing user
+class User1(threading.Thread):
+    def __init__(self):
+        super().__init__()
+        self.id=101
+        self.bank=PersonalBanking(self.id)
 
-print("================================")
+    def transactions(self):
+        self.bank.withdraw(1000)
+        self.bank.deposit(900)
+        #illegal withdrawal
+        self.bank.withdraw(10000000)
+        self.bank.get_transaction_history()
 
-try:
-    person2 = PersonalBanking(102)
-    person2.withdraw(1000)
-    person2.deposit(10000)
-    person2.get_transaction_history()
-except NotACustomerException as e:
-    print(e.args[0])
+    def run(self):
+        self.transactions()
 
-try:
-    bank = Banking()
-    new_customer = bank.create_new_customer("Jake Pearson",12345)
-    new_customer.create_new_customer()
+#Demonstrating an existing user
+class User2(threading.Thread):
+    def __init__(self):
+        super().__init__()
+        self.id=102
+        self.bank=PersonalBanking(self.id)
 
-except IllegalNameOrBalanceException as e:
-    print(e.args[0])
+    def transactions(self):
+        self.bank.withdraw(1000)
+        self.bank.deposit(10000)
+        #Illegal deposit
+        self.bank.deposit(-100)
+        self.bank.get_transaction_history()
+
+    def run(self):
+        self.transactions()
+
+#Demonstrating an Invalid User
+class User3(threading.Thread):
+    def __init__(self):
+        super().__init__()
+        self.id=109
+        try:
+            self.bank=PersonalBanking(self.id)
+        except NotACustomerException as e:
+            print(e.args[0])
+            return
+        
+    def transactions(self):
+        return "No transactions to show here."
+    
+    def run(self):
+        self.transactions()
+
+#Demonstrating a new User
+class User4(threading.Thread):
+    def __init__(self):
+        super().__init__()
+
+    def get_new_account(self,name,opening_balance):
+        bank=Banking()
+        try:
+            self.bank=bank.create_new_customer(name,opening_balance)
+            self.bank.create_new_customer()
+            self.name=name
+            self.opening_balance=opening_balance
+        except IllegalNameOrBalanceException as e:
+            print(e.args[0])
+
+    def transactions(self):
+        self.bank.get_transaction_history()
+
+    def run(self):
+        self.get_new_account("Enid Blyton",9999)
+        self.transactions()
+
+#Bank server
+class BankingServer:
+    
+    def __main__(self):
+        user1 = User1()
+        user2 = User2()
+        user3 = User3()
+        user4 = User4()
+        user1.start()
+        user2.start()
+        user3.start()
+        user4.start()
+        user1.join()
+        user2.join()
+        user3.join()
+        user4.join()
+        print("Server is Idle...")
+
+#start the server
+server = BankingServer()
+server.__main__()
