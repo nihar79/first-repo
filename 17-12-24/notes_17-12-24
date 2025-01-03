@@ -2,7 +2,7 @@ id prints the value of memory address of a variable in python
 strong memory optimization: if a=10 and b=10 then id(a)=id(b) which shows that no additional memory is allocated
 repl is running python from command line with >>> symbol
 type()
-veriables= single value types, multi value types - list, set, tuple, dictionary
+variables= single value types, multi value types - list, set, tuple, dictionary
 list- ordered, mutable,homogenous/heterogenous, [], append, insert; no function for update- just use list[index]=new value; remove takes input of the object, extend-unpacks a list and add,
 collections are used for faster processing
     count, multiply operations in list

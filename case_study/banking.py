@@ -63,8 +63,7 @@ class PersonalBanking(Banking):
         super().__init__()
         global balance_lock
         balance_lock = threading.Lock()
-        global transaction_history
-        transaction_history = []
+        self.transaction_history = []
         try:
             self.data = super().get_customer_data(customer_id)
             self.my_data()
@@ -95,16 +94,18 @@ class PersonalBanking(Banking):
             print(self.name,"====>",e.args[0])
 
     def update_transaction_history(self,action,amount):
-        update=f"{datetime.datetime.now()}: {amount} was {action}. New balance is {self.balance}"
-        transaction_history.append(update)
+        with balance_lock:
+            update=f"{datetime.datetime.now()}: {amount} was {action}. New balance is {self.balance}"
+            self.transaction_history.append(update)
 
     def get_transaction_history(self):
-        for transaction in transaction_history:
-            print(self.name,"====>",transaction)
+        with balance_lock:
+            for transaction in self.transaction_history:
+                print(self.name,"====>",transaction)
 
     def create_new_customer(self):
         message=f"New account opened. Opening Balance {self.balance}"
-        transaction_history.append(message)
+        self.transaction_history.append(message)
 
 ##User classes
 #Demonstrating an existing user
@@ -153,7 +154,7 @@ class User3(threading.Thread):
             return
         
     def transactions(self):
-        return "No transactions to show here."
+        print("Anonymous====>No transactions to show here. Consider Becoming a customer.")
     
     def run(self):
         self.transactions()
@@ -189,10 +190,10 @@ class BankingServer:
         user3 = User3()
         user4 = User4()
         user1.start()
+        user1.join()
         user2.start()
         user3.start()
         user4.start()
-        user1.join()
         user2.join()
         user3.join()
         user4.join()
